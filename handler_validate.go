@@ -5,31 +5,49 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/Manhnguyen981024/httpserver-go/internal/auth"
+	"github.com/Manhnguyen981024/httpserver-go/internal/database"
+	"github.com/google/uuid"
 )
 
-func handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerValidateChirp(w http.ResponseWriter, r *http.Request) {
 	type parameter struct {
 		Body string `json:"body"`
 	}
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		responseWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	userId, err := auth.ValidateJWT(token, cfg.secretKey)
+	if err != nil {
+		responseWithError(w, http.StatusUnauthorized, "Invalid token")
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameter{}
-	err := decoder.Decode(&params)
-	if err != nil {
-		log.Printf("Error decoding JSON: %s", err)
-		responseWithError(w, 500, "Something went wrong")
+	errDecoder := decoder.Decode(&params)
+	if errDecoder != nil {
+		log.Printf("Error decoding JSON: %s", errDecoder)
+		responseWithError(w, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
 
 	if len(params.Body) > 140 {
-		responseWithError(w, 400, "Chirp is too long")
+		responseWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 
-	type responseSuccess struct {
-		CleanedBody string `json:"cleaned_body"`
-	}
-	respdata := responseSuccess{CleanedBody: processProfaneWords(params.Body)}
-	responseWithJSON(w, 200, respdata)
+	newChirp, err := cfg.DB.CreateChirps(r.Context(), database.CreateChirpsParams{
+		ID:     uuid.New(),
+		Body:   processProfaneWords(params.Body),
+		UserID: userId,
+	})
+
+	responseWithJSON(w, http.StatusCreated, newChirp)
 }
 
 func processProfaneWords(words string) string {

@@ -23,6 +23,7 @@ func responseWithJSON(w http.ResponseWriter, code int, payload any) {
 		responseWithError(w, 500, "Something went wrong")
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(jsonData)
 }
