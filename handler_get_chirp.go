@@ -13,7 +13,7 @@ func (cfg *apiConfig) handlerGetChirpByUserID(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	chirps, err := cfg.DB.GetChirpsByUserID(r.Context(), chirpID)
+	chirps, err := cfg.DB.GetChirpsByChirpID(r.Context(), chirpID)
 	if err != nil {
 		responseWithError(w, http.StatusNotFound, "No chirps found for the given chirp ID")
 		return

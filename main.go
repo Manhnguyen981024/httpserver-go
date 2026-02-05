@@ -66,10 +66,15 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", cfg.handlerValidateChirp)
 	mux.HandleFunc("POST /api/users", cfg.handlerAddUsers)
 	mux.HandleFunc("POST /api/login", cfg.handlerLogin)
+	mux.HandleFunc("POST /api/refresh", cfg.handlerRefreshToken)
+	mux.HandleFunc("POST /api/revoke", cfg.handlerRevokeToken)
+	mux.HandleFunc("POST  /api/polka/webhooks", cfg.handlerPolkaWebhook)
 
+	mux.HandleFunc("PUT /api/users", cfg.handlerUpdateUser)
+
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.handlerDeleteChirp)
 	server.ListenAndServe()
 }
-
 func handlerResponse(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)

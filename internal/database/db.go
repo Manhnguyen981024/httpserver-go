@@ -27,20 +27,44 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createChirpsStmt, err = db.PrepareContext(ctx, createChirps); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateChirps: %w", err)
 	}
+	if q.createRefreshTokenStmt, err = db.PrepareContext(ctx, createRefreshToken); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateRefreshToken: %w", err)
+	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
 	if q.deleteAllUsersStmt, err = db.PrepareContext(ctx, deleteAllUsers); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteAllUsers: %w", err)
 	}
+	if q.deleteChirpByChirpIdStmt, err = db.PrepareContext(ctx, deleteChirpByChirpId); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteChirpByChirpId: %w", err)
+	}
 	if q.getChirpsStmt, err = db.PrepareContext(ctx, getChirps); err != nil {
 		return nil, fmt.Errorf("error preparing query GetChirps: %w", err)
 	}
-	if q.getChirpsByUserIDStmt, err = db.PrepareContext(ctx, getChirpsByUserID); err != nil {
-		return nil, fmt.Errorf("error preparing query GetChirpsByUserID: %w", err)
+	if q.getChirpsByChirpIDStmt, err = db.PrepareContext(ctx, getChirpsByChirpID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetChirpsByChirpID: %w", err)
+	}
+	if q.getRefreshTokenByTokenStmt, err = db.PrepareContext(ctx, getRefreshTokenByToken); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRefreshTokenByToken: %w", err)
+	}
+	if q.getRefreshTokenByUserIdStmt, err = db.PrepareContext(ctx, getRefreshTokenByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRefreshTokenByUserId: %w", err)
 	}
 	if q.getUserByEmailStmt, err = db.PrepareContext(ctx, getUserByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByEmail: %w", err)
+	}
+	if q.getUserByIDStmt, err = db.PrepareContext(ctx, getUserByID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserByID: %w", err)
+	}
+	if q.revokeRefreshTokenStmt, err = db.PrepareContext(ctx, revokeRefreshToken); err != nil {
+		return nil, fmt.Errorf("error preparing query RevokeRefreshToken: %w", err)
+	}
+	if q.updateUserChirpyRedStmt, err = db.PrepareContext(ctx, updateUserChirpyRed); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateUserChirpyRed: %w", err)
+	}
+	if q.updateUserPasswordStmt, err = db.PrepareContext(ctx, updateUserPassword); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateUserPassword: %w", err)
 	}
 	return &q, nil
 }
@@ -50,6 +74,11 @@ func (q *Queries) Close() error {
 	if q.createChirpsStmt != nil {
 		if cerr := q.createChirpsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createChirpsStmt: %w", cerr)
+		}
+	}
+	if q.createRefreshTokenStmt != nil {
+		if cerr := q.createRefreshTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createRefreshTokenStmt: %w", cerr)
 		}
 	}
 	if q.createUserStmt != nil {
@@ -62,19 +91,54 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteAllUsersStmt: %w", cerr)
 		}
 	}
+	if q.deleteChirpByChirpIdStmt != nil {
+		if cerr := q.deleteChirpByChirpIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteChirpByChirpIdStmt: %w", cerr)
+		}
+	}
 	if q.getChirpsStmt != nil {
 		if cerr := q.getChirpsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getChirpsStmt: %w", cerr)
 		}
 	}
-	if q.getChirpsByUserIDStmt != nil {
-		if cerr := q.getChirpsByUserIDStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getChirpsByUserIDStmt: %w", cerr)
+	if q.getChirpsByChirpIDStmt != nil {
+		if cerr := q.getChirpsByChirpIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getChirpsByChirpIDStmt: %w", cerr)
+		}
+	}
+	if q.getRefreshTokenByTokenStmt != nil {
+		if cerr := q.getRefreshTokenByTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRefreshTokenByTokenStmt: %w", cerr)
+		}
+	}
+	if q.getRefreshTokenByUserIdStmt != nil {
+		if cerr := q.getRefreshTokenByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRefreshTokenByUserIdStmt: %w", cerr)
 		}
 	}
 	if q.getUserByEmailStmt != nil {
 		if cerr := q.getUserByEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getUserByEmailStmt: %w", cerr)
+		}
+	}
+	if q.getUserByIDStmt != nil {
+		if cerr := q.getUserByIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByIDStmt: %w", cerr)
+		}
+	}
+	if q.revokeRefreshTokenStmt != nil {
+		if cerr := q.revokeRefreshTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing revokeRefreshTokenStmt: %w", cerr)
+		}
+	}
+	if q.updateUserChirpyRedStmt != nil {
+		if cerr := q.updateUserChirpyRedStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateUserChirpyRedStmt: %w", cerr)
+		}
+	}
+	if q.updateUserPasswordStmt != nil {
+		if cerr := q.updateUserPasswordStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateUserPasswordStmt: %w", cerr)
 		}
 	}
 	return err
@@ -114,25 +178,41 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                    DBTX
-	tx                    *sql.Tx
-	createChirpsStmt      *sql.Stmt
-	createUserStmt        *sql.Stmt
-	deleteAllUsersStmt    *sql.Stmt
-	getChirpsStmt         *sql.Stmt
-	getChirpsByUserIDStmt *sql.Stmt
-	getUserByEmailStmt    *sql.Stmt
+	db                          DBTX
+	tx                          *sql.Tx
+	createChirpsStmt            *sql.Stmt
+	createRefreshTokenStmt      *sql.Stmt
+	createUserStmt              *sql.Stmt
+	deleteAllUsersStmt          *sql.Stmt
+	deleteChirpByChirpIdStmt    *sql.Stmt
+	getChirpsStmt               *sql.Stmt
+	getChirpsByChirpIDStmt      *sql.Stmt
+	getRefreshTokenByTokenStmt  *sql.Stmt
+	getRefreshTokenByUserIdStmt *sql.Stmt
+	getUserByEmailStmt          *sql.Stmt
+	getUserByIDStmt             *sql.Stmt
+	revokeRefreshTokenStmt      *sql.Stmt
+	updateUserChirpyRedStmt     *sql.Stmt
+	updateUserPasswordStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                    tx,
-		tx:                    tx,
-		createChirpsStmt:      q.createChirpsStmt,
-		createUserStmt:        q.createUserStmt,
-		deleteAllUsersStmt:    q.deleteAllUsersStmt,
-		getChirpsStmt:         q.getChirpsStmt,
-		getChirpsByUserIDStmt: q.getChirpsByUserIDStmt,
-		getUserByEmailStmt:    q.getUserByEmailStmt,
+		db:                          tx,
+		tx:                          tx,
+		createChirpsStmt:            q.createChirpsStmt,
+		createRefreshTokenStmt:      q.createRefreshTokenStmt,
+		createUserStmt:              q.createUserStmt,
+		deleteAllUsersStmt:          q.deleteAllUsersStmt,
+		deleteChirpByChirpIdStmt:    q.deleteChirpByChirpIdStmt,
+		getChirpsStmt:               q.getChirpsStmt,
+		getChirpsByChirpIDStmt:      q.getChirpsByChirpIDStmt,
+		getRefreshTokenByTokenStmt:  q.getRefreshTokenByTokenStmt,
+		getRefreshTokenByUserIdStmt: q.getRefreshTokenByUserIdStmt,
+		getUserByEmailStmt:          q.getUserByEmailStmt,
+		getUserByIDStmt:             q.getUserByIDStmt,
+		revokeRefreshTokenStmt:      q.revokeRefreshTokenStmt,
+		updateUserChirpyRedStmt:     q.updateUserChirpyRedStmt,
+		updateUserPasswordStmt:      q.updateUserPasswordStmt,
 	}
 }

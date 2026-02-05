@@ -1,18 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/Manhnguyen981024/httpserver-go/internal/auth"
+	"github.com/Manhnguyen981024/httpserver-go/internal/database"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	type loginRequest struct {
-		Email            string `json:"email"`
-		Password         string `json:"password"`
-		ExpiresInSeconds int    `json:"expires_in_seconds"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	var req loginRequest
@@ -34,17 +35,50 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	realSecond := req.ExpiresInSeconds
-	if realSecond <= 0 {
-		realSecond = 3600 // default 1 hour
-	}
-	token, err := auth.MakeJWT(user.ID, cfg.secretKey, time.Duration(realSecond)*time.Second)
+	token, err := auth.MakeJWT(user.ID, cfg.secretKey, time.Duration(3600)*time.Second)
 
 	if err != nil {
 		responseWithError(w, http.StatusInternalServerError, "Could not generate token")
 		return
 	}
 
-	user.Token = token
-	responseWithJSON(w, http.StatusOK, user)
+	refreshToken, err := cfg.DB.GetRefreshTokenByUserId(r.Context(), user.ID)
+	refreshTokenStr := refreshToken.Token
+
+	if err != nil {
+		refreshTokenStr, err = createNewRefreshToken(user, cfg, r)
+		if err != nil {
+			responseWithError(w, http.StatusInternalServerError, "Could not generate refresh token")
+			return
+		}
+	}
+	type loginResponse struct {
+		database.GetUserByEmailRow
+		Token        string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	resp := loginResponse{
+		GetUserByEmailRow: user,
+		Token:             token,
+		RefreshToken:      refreshTokenStr,
+	}
+	responseWithJSON(w, http.StatusOK, resp)
+}
+
+func createNewRefreshToken(user database.GetUserByEmailRow, cfg *apiConfig, r *http.Request) (string, error) {
+	refreshToken, err := auth.MakeRefreshToken()
+	if err != nil {
+		return "", err
+	}
+	tokenExpiry := time.Now().Add(1440 * time.Hour)
+	_, err = cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		UserID:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: sql.NullTime{Time: tokenExpiry, Valid: true},
+	})
+	if err != nil {
+		return "", err
+	}
+	return refreshToken, nil
 }
