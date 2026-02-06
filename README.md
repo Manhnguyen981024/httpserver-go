@@ -96,7 +96,8 @@ use `sqlc generate` to generate sql
 Authorization: Bearer <token>
 ```
 *Request body* :
-```json {
+```json
+{
   "body": "message",
 }
 ```
