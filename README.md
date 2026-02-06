@@ -72,33 +72,37 @@ use `sqlc generate` to generate sql
 }`
 *Response body* :
 *HTTP status code success* : `HTTP 201 Created`
-`json
+```json
 {
   "id": "50746277-23c6-4d85-a890-564c0044c2fb",
   "created_at": "2021-07-07T00:00:00Z",
   "updated_at": "2021-07-07T00:00:00Z",
   "email": "user@example.com"
-}`
+}
+```
+
 *HTTP status code error* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Create Chirp `POST /api/chirps`
 - Post a chirp to our social media
 *URL* : `POST /api/chirps`
 *Request header* :
-`
+```
 Authorization: Bearer <token>
-`
+```
 *Request body* :
-`json {
+```json {
   "body": "message",
-}`
+}
+```
 *Response body* :
 *HTTP success status code* : `HTTP 201 Created`
-`json
+```json
 {
   "id": "94b7e44c-3604-42e3-bef7-ebfcc3efff8f",
   "created_at": "2021-01-01T00:00:00Z",
@@ -106,26 +110,27 @@ Authorization: Bearer <token>
   "body": "Hello, world!",
   "user_id": "123e4567-e89b-12d3-a456-426614174000"
 }
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## GET ALL chirps `GET /api/chirps`
 *URL* : `GET /api/chirps`
 *Optional parameters* :
-`
+```
   ?author_id=id  
   ?sort=asc or desc 
-`
+```
 - ?author_id=id  : get chirps by author id
 - ?sort=asc or desc sort chirps
 
 *Response body* :
 *HTTP success status code* : `HTTP 200 OK`
-`json
+```json
 [
   {
     "id": "94b7e44c-3604-42e3-bef7-ebfcc3efff8f",
@@ -142,23 +147,24 @@ Authorization: Bearer <token>
     "user_id": "123e4567-e89b-12d3-a456-426614174000"
   }
 ]
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Get chirps by chirp id `GET /api/chirps/{chirpID}`
 *URL* : `GET /api/chirps/{chirpID}`
 *Path* :
-`
+```
   chirpID: id of the chirp
-`
+```
 - Example: GET /api/chirps/94b7e44c-3604-42e3-bef7-ebfcc3efff8f
 *Response body* :
 *HTTP success status code* : `HTTP 200 OK`
-`json
+```json
 {
   "id": "94b7e44c-3604-42e3-bef7-ebfcc3efff8f",
   "created_at": "2021-01-01T00:00:00Z",
@@ -166,25 +172,27 @@ Authorization: Bearer <token>
   "body": "fr? no clowning?",
   "user_id": "123e4567-e89b-12d3-a456-426614174000"
 }
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Login `POST /api/login`
 *URL* : `POST /api/login`
 - Login to our social media system to post message
 *Request body* :
-`json
+```json
 {
   "email":"email",
   "password":"password"
-}`
+}
+```
 *Response body* :
 *HTTP success status code* : `HTTP 200 OK`
-`json 
+```json 
 {
   "id": "5a47789c-a617-444a-8a80-b50359247804",
   "created_at": "2021-07-01T00:00:00Z",
@@ -193,120 +201,128 @@ Authorization: Bearer <token>
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
   "refresh_token": "56aa826d22baab4b5ec2cea41a59ecbba03e542aedbb31d9b80326ac8ffcfa2a"
 }
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Refresh token `POST /api/refresh`
 *URL* : `POST /api/refresh`
 - Refresh a access token by using refresh token
 - This new endpoint does not accept a request body, but does require a refresh token to be present in the headers
 *Request header* :
-`
+```
 Authorization: Bearer <token>
-`
+```
 *Response body* :
 *HTTP success status code* : `HTTP 200 OK`
-`json 
+```json 
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 }
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Revoke token `POST /api/revoke`
 *URL* : `POST /api/refresh`
 - This new endpoint does not accept a request body, but does require a refresh token to be present in the headers
 *Request header* :
-`
+```
 Authorization: Bearer <token>
-`
+```
 *Response body* :
 *HTTP success status code* : `HTTP 204 No Content`
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Update user `PUT /api/users`
 *URL* : `PUT /api/users`
 - Endpoint so that users can update their own (but not others') email and password.
 *Request header* :
-`
+```
 Authorization: Bearer <token>
-`
+```
 *Request body* :
-`json
+```json
 {
   "email":"new email",
   "password":"new password"
-}`
+}
+```
 *Response body* :
 *HTTP success status code* : `HTTP 200 OK`
-`json 
+```json 
 {
   "id": "5a47789c-a617-444a-8a80-b50359247804",
   "created_at": "2021-07-01T00:00:00Z",
   "updated_at": "2021-07-01T00:00:00Z",
   "email": "lane@example.com",
 }
-`
+```
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 - Delete chirp by id `DELETE /api/chirps/{chirpID}`
 *URL* : `DELETE /api/chirps/{chirpID}`
 - Endpoint so that deletes a chirp from the database by its id.
 *Request header* :
-`
+```
 Authorization: Bearer <token>
-`
+```
 *Request body* :
-`json
+```json
 {
   "email":"new email",
   "password":"new password"
-}`
+}
+```
 *Response body* :
 *HTTP success status code* : `HTTP 204 No Content`
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
 ## Webhook `POST /api/polka/webhooks`
 *URL* : `POST /api/polka/webhooks`
 - They will send us webhooks whenever a user subscribes to Chirpy Red
 *Request header* :
-`
+```
 Authorization: Apikey <token>
-`
+```  
 *Request body* :
-`json
+```json
 {
   "data": {
     "user_id": "${userID}"
   },
   "event": "user.upgraded"
 }
-`
+```
 *Response body* :
 *HTTP success status code* : `HTTP 204 No Content`
 *HTTP error status code* : `HTTP 400, 500`
-`json
+```json
 {
   "error":"error message"
-}`
+}
+```
 
