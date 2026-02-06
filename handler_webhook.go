@@ -5,11 +5,23 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Manhnguyen981024/httpserver-go/internal/auth"
 	"github.com/Manhnguyen981024/httpserver-go/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		responseWithError(w, http.StatusUnauthorized, "API key missing")
+		return
+	}
+
+	if apiKey != cfg.apiKey {
+		responseWithError(w, http.StatusUnauthorized, "Invalid API key")
+		return
+	}
+
 	type requestParameters struct {
 		Event string `json:"event"`
 		Data  struct {
@@ -18,8 +30,8 @@ func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request
 	}
 	request := &requestParameters{}
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(request)
-	if err != nil {
+	errDecoder := decoder.Decode(request)
+	if errDecoder != nil {
 		responseWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}

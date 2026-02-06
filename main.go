@@ -17,6 +17,7 @@ type apiConfig struct {
 	DB             *database.Queries
 	Flatform       string
 	secretKey      string
+	apiKey         string
 }
 
 func (a *apiConfig) incrementFileserverHits() {
@@ -42,6 +43,7 @@ func main() {
 		ErrorLog: log.New(os.Stdout, "[HTTP-ERROR] ", log.LstdFlags),
 	}
 	dbURL := os.Getenv("DB_URL")
+	polkaKey := os.Getenv("POLKA_KEY")
 
 	log.Printf("URL DB : %v ", dbURL)
 	dbConn, err := sql.Open("postgres", dbURL)
@@ -54,6 +56,7 @@ func main() {
 		DB:             database.New(dbConn),
 		Flatform:       os.Getenv("PLATFORM"),
 		secretKey:      os.Getenv("SECRET_KEY"),
+		apiKey:         polkaKey,
 	}
 
 	mux.Handle("/app/", cfg.middlewareMetricInc(http.StripPrefix("/app/", http.FileServer(http.Dir("./app")))))

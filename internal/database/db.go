@@ -45,6 +45,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getChirpsByChirpIDStmt, err = db.PrepareContext(ctx, getChirpsByChirpID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetChirpsByChirpID: %w", err)
 	}
+	if q.getChirpsByUserIDStmt, err = db.PrepareContext(ctx, getChirpsByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetChirpsByUserID: %w", err)
+	}
 	if q.getRefreshTokenByTokenStmt, err = db.PrepareContext(ctx, getRefreshTokenByToken); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRefreshTokenByToken: %w", err)
 	}
@@ -104,6 +107,11 @@ func (q *Queries) Close() error {
 	if q.getChirpsByChirpIDStmt != nil {
 		if cerr := q.getChirpsByChirpIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getChirpsByChirpIDStmt: %w", cerr)
+		}
+	}
+	if q.getChirpsByUserIDStmt != nil {
+		if cerr := q.getChirpsByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getChirpsByUserIDStmt: %w", cerr)
 		}
 	}
 	if q.getRefreshTokenByTokenStmt != nil {
@@ -187,6 +195,7 @@ type Queries struct {
 	deleteChirpByChirpIdStmt    *sql.Stmt
 	getChirpsStmt               *sql.Stmt
 	getChirpsByChirpIDStmt      *sql.Stmt
+	getChirpsByUserIDStmt       *sql.Stmt
 	getRefreshTokenByTokenStmt  *sql.Stmt
 	getRefreshTokenByUserIdStmt *sql.Stmt
 	getUserByEmailStmt          *sql.Stmt
@@ -207,6 +216,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteChirpByChirpIdStmt:    q.deleteChirpByChirpIdStmt,
 		getChirpsStmt:               q.getChirpsStmt,
 		getChirpsByChirpIDStmt:      q.getChirpsByChirpIDStmt,
+		getChirpsByUserIDStmt:       q.getChirpsByUserIDStmt,
 		getRefreshTokenByTokenStmt:  q.getRefreshTokenByTokenStmt,
 		getRefreshTokenByUserIdStmt: q.getRefreshTokenByUserIdStmt,
 		getUserByEmailStmt:          q.getUserByEmailStmt,
